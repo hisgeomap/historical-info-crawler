@@ -27,3 +27,6 @@ new ChineseEraWikiProcessor(data => {
 
 ### Supported Processor
 - ChineseEraWikiProcessor - Chinese Historical Era for Wikipedia ( https://zh.wikipedia.org/zh-cn/中国年号列表 )
+
+### Main Goal
+historical-info-crawler is used to provides data-level support for hisgeomap system. historical-info-crawler should take good online data sources as input and output formatted data that can be easily used in hisgeomap system. historical-info-crawler should focus on the parsing and formatting of different table data, extensibility of different languages and design of standard struture for formatted data.
