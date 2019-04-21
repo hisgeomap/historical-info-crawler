@@ -6,7 +6,7 @@ historical-info-crawler is an Open Source TypeScript Crawler which provides inte
 User can use any supported Processer to crawl data by passing the callback function for processing data when constructing the processor.<br/><br/>
 Here is an example of use ChineseEraWikiProcessor to generate a JSON file with each row being a JSON object.
 ```javascript
-import {ChineseEraWikiProcessor} from 'historical-info-crawler';
+import {ChineseEraWikiProcessor} from '<PATH_OF_SRC_DIR>/processor/WikiProcessor';
 import * as fs from "fs";
 
 // generating data
