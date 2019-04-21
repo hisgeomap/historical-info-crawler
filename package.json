@@ -1,0 +1,18 @@
+{
+    "name": "search",
+    "version": "1.0.0",
+    "description": "search engine for hisgeomap",
+    "main": "index.js",
+    "license": "MIT",
+    "dependencies": {
+        "crawler": "^1.2.1"
+    },
+    "scripts": {
+        "start:dev": "tsc --watch & nodemon --ignore 'data/*' ts-build/test/index.js",
+        "compile": "tsc",
+        "compile:watch": "tsc --watch"
+    },
+    "devDependencies": {
+        "@types/node": "^11.13.5"
+    }
+}
