@@ -34,14 +34,19 @@ export class ChineseWikiFormatter {
 
     decodeRange(s: string): number[] {
         const range = [];
-        let years = s.replace(" ", "").split("—");
+        let years = [s];
+        if (s.includes("—")) {
+            years = s.replace(" ", "").split("—");
+        } else if (s.includes("－")) {
+            years = s.replace(" ", "").split("－");
+        }
 
         years = years.length > 2 ? [years[0], years[1]] : years;
         assert(years.length > 0 && years.length <= 2);
-
         for (let i = 0; i < years.length; i++) {
             if (this.resolution === ChineseWikiFormatter.YEAR_STANDARD) {
                 range.push(this.decodeDuration(years[i]));
+
                 if (range[i] == 0 && years[i].indexOf("年") == -1) {
                     range.pop();
                 }
@@ -69,7 +74,18 @@ export class ChineseWikiFormatter {
             s.indexOf("势力") == -1 &&
             s.indexOf("待考") == -1
         )
-            return s.replace(/\[.*?\]|年号|朝|\（.*?\）/g, "");
+            return this.stringWithoutSpace(s).replace(
+                /\[.*?\]|年号|朝|帝国|\（.*?\）/g,
+                ""
+            );
+    }
+
+    decodePrefix(s: string): string[] {
+        return s.split(" ").map(e => this.stringWithoutSpace(e));
+    }
+
+    decodeEras(s: string): string[] {
+        return s.split(" ").map(e => this.stringWithoutAnnotation(e));
     }
 
     checkNotExists(s: string): boolean {
@@ -78,6 +94,10 @@ export class ChineseWikiFormatter {
 
     checkNotSure(s: string): boolean {
         return s === "?";
+    }
+
+    stringWithoutAnnotation(s: string): string {
+        return s.replace(/\[.*?\]/g, "");
     }
 
     stringWithoutSpace(s: string): string {

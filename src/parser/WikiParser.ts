@@ -3,48 +3,24 @@ import * as assert from "assert";
 export class WikiTableStrictParser {
     $;
 
-    constructor($) {
-        this.$ = $;
-    }
+    caption_option = {
+        TH: "TH",
+        CAPTION: "CAPTION",
+        H2: "H2",
+        H3: "H3",
+        H4: "H4"
+    };
 
-    getCaption(tableNode): string {
-        const $ = this.$;
-        let title;
-        const caption = $(tableNode).children("caption");
-
-        // looking for the prev element with useful infomation
-        let prev = $(tableNode).prev();
-        while (!prev.is("h2") && !prev.is("h3") && !prev.is("table")) {
-            prev = $(prev).prev();
-        }
-
-        if (caption.length == 1) {
-            // caption title
-            title = $($(tableNode).children("caption")[0]).text();
-        } else if (prev.is("h3")) {
-            // h3 title
-            title = prev.text();
-        } else if (prev.is("h2")) {
-            // h2 title
-            title = prev.text();
-        } else {
-            // looking for h2 for this section
-            while (!prev.is("h2")) {
-                prev = $(prev).prev();
-            }
-            title = prev.text();
-        }
-
-        assert(title != null);
-
-        return title;
-    }
-
-    parseToObject(tableNode, callback) {
-        const $ = this.$;
+    /**
+     * Possible Place that has the caption
+     * 1. <th> tag in the table
+     * 2. caption of the table
+     * 3. <h2> tag before the table
+     * 4. <h3> tag before the table
+     * @param caption_priority an array that defines the priority and also the factor contained
+     */
+    parse($, tableNode, caption_priority, callback) {
         const rows = $(tableNode).find("tr");
-        const data = [];
-
         // identify attr columns
         const attrs = [];
         const cols = $(rows[0]).find("th");
@@ -52,11 +28,72 @@ export class WikiTableStrictParser {
             attrs.push($(cols[j]).text());
         }
 
+        // caption
+        let caption = $(tableNode).children("caption");
+        caption = caption.length == 0 ? null : $(caption[0]).text();
+        // h3
+        let h3 = this.cloestPrevSiblingText($, tableNode, "h3", [
+            "h2",
+            "table"
+        ]);
+        // h4
+        let h4 = this.cloestPrevSiblingText($, tableNode, "h4", [
+            "h3",
+            "table"
+        ]);
+        // h2
+        let h2 = this.cloestPrevSiblingText($, tableNode, "h2", []);
+
+        // get title
+        let titles = {
+            CAPTION: caption,
+            H2: h2,
+            H3: h3,
+            H4: h4,
+            TH: null
+        };
+
         for (let j = 1; j < rows.length; j++) {
-            const row = $(rows[j]).find("td");
-            if (row.length == attrs.length) {
-                callback(attrs, row);
+            const th = $(rows[j]).find("th");
+            if (th.length === 1) {
+                titles.TH = $(th[0]).text();
+            }
+            let title = "";
+            for (let i = 0; i < caption_priority.length; i++) {
+                if (titles[caption_priority[i]]) {
+                    title = titles[caption_priority[i]];
+                    break;
+                }
+            }
+
+            const td = $(rows[j]).find("td");
+            if (td.length == attrs.length) {
+                const row = [];
+                for (let i = 0; i < td.length; i++) {
+                    row.push($(td[i]).text());
+                }
+
+                callback(title, attrs, row);
             }
         }
+    }
+
+    cloestPrevSiblingText($, node, selector, stop) {
+        let prev = $(node).prev();
+        while (prev.length > 0) {
+            const canStop = stop.reduce(
+                (accu, cur) => accu | $(prev[0]).is(cur),
+                false
+            );
+            if (canStop) {
+                break;
+            }
+            if ($(prev[0]).is(selector)) {
+                return $(prev[0]).text();
+            }
+            prev = prev.prev();
+        }
+
+        return null;
     }
 }
