@@ -1,45 +1,16 @@
 import { Leader as LeaderNoSql, Era as EraNoSql } from "../model/index";
 
-export class Era {
-    regime: Regime;
-    name: string;
-    start: number;
-    startHD: number;
-    end: number;
-    endHD: number;
-    duration: number;
-}
-
-export class EraPiece {
-    era: Era;
-    start: number;
-    end: number;
-    from: number;
-    to: number;
-}
-
-export class Regime {
-    start: number;
-    name: string;
-}
-
-export class Leader {
-    eras: Era[];
-    eraPieces: EraPiece[];
-    regime: Regime;
-    start: number;
-    end: number;
-    name: string;
-    prefix: string[];
-}
-
 export class TimeManager {
     data;
-    constructor(leaderData: LeaderNoSql[], eraData: EraNoSql[]) {
-        // regime + leader + era
-        const regimeSet = new Set();
+    constructor(
+        leaderData: LeaderNoSql[],
+        eraData: EraNoSql[],
+        startBC: number,
+        endBC: number
+    ) {
         this.data = {};
-        for (let i = -300; i <= 1911; i++) {
+        for (let i = startBC; i <= endBC; i++) {
+            // do not have year 0 BC
             if (i == 0) {
                 continue;
             }
@@ -49,8 +20,11 @@ export class TimeManager {
             const eras = eraData.filter(e => i >= e.start && i <= e.end);
             const repeated = eras.map(e => false);
 
-            // translate to proper string for each data
+            // generate pool for this year
             this.data[i] = [];
+
+            // add leader's translation of this year into data
+            // add era(matching a leader)'s translation of this year into data
             leaders.forEach(leader => {
                 eras.forEach((era, pos) => {
                     if (leader.eras.indexOf(era.name) >= 0) {
@@ -62,6 +36,8 @@ export class TimeManager {
 
                 this.data[i].push(leader.translate(i));
             });
+
+            // add era(not matching any leader)'s translation of this year into data
             eras.forEach((e, pos) => {
                 if (!repeated[pos]) {
                     this.data[i].push(e.translate(i));

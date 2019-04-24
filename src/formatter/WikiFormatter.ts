@@ -1,4 +1,5 @@
 import * as assert from "assert";
+import { Leader } from "../model";
 
 export class ChineseWikiFormatter {
     static YEAR_STANDARD = "YEAR";
@@ -41,7 +42,7 @@ export class ChineseWikiFormatter {
             years = s.replace(" ", "").split("－");
         }
 
-        years = years.length > 2 ? [years[0], years[1]] : years;
+        years = years.length > 2 ? [years[0], years[years.length - 1]] : years;
         assert(years.length > 0 && years.length <= 2);
         for (let i = 0; i < years.length; i++) {
             if (this.resolution === ChineseWikiFormatter.YEAR_STANDARD) {
@@ -81,11 +82,56 @@ export class ChineseWikiFormatter {
     }
 
     decodePrefix(s: string): string[] {
-        return s.split(" ").map(e => this.stringWithoutSpace(e));
+        return s
+            .split(" ")
+            .map(e => this.stringWithoutSpace(e))
+            .filter(e => e.length != 0);
     }
 
     decodeEras(s: string): string[] {
-        return s.split(" ").map(e => this.stringWithoutAnnotation(e));
+        return s
+            .split(" ")
+            .map(e => this.stringWithoutAnnotation(e))
+            .filter(e => e.length != 0);
+    }
+
+    properPrefix(leader: Leader) {
+        const prefixs = leader.prefix;
+        const year = leader.start;
+        function find(str: string) {
+            const validePrefixes = prefixs.filter(e => e.indexOf(str) >= 0);
+            if (validePrefixes.length >= 0) {
+                return validePrefixes.reduce(
+                    (prev, cur) =>
+                        prev.length > 0 && prev.length < cur.length
+                            ? prev
+                            : cur,
+                    ""
+                );
+            }
+
+            return null;
+        }
+
+        let result;
+        if (year >= 618) {
+            result = find("宗");
+        } else {
+            result = find("帝");
+        }
+        if (result) {
+            return result;
+        }
+
+        const tags = ["王", "公", "侯", ""];
+        for (let i = 0; i < tags.length; i++) {
+            result = find(tags[i]);
+            if (result) {
+                return result;
+            }
+        }
+
+        return result;
     }
 
     checkNotExists(s: string): boolean {

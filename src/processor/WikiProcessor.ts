@@ -73,15 +73,15 @@ export class ChineseEraWikiProcessor extends Processor {
                         return null;
                     }
                     assert(duration && name && range);
-                    data.push(
-                        this.builder.build(
-                            caption,
-                            leader,
-                            name,
-                            duration,
-                            range
-                        )
+
+                    const element = this.builder.build(
+                        caption,
+                        leader,
+                        name,
+                        duration,
+                        range
                     );
+                    if (element) data.push(element);
                 }
             );
         }
@@ -153,16 +153,24 @@ export class ChineseEmperorWikiProcessor extends Processor {
                         return "";
                     })();
 
-                    if (!(prefix && name && range && era && caption)) {
+                    if (!(name && range)) {
                         return null;
                     }
 
-                    assert(prefix && name && range && era);
+                    assert(name && range);
                     // build
 
-                    data.push(
-                        this.builder.build(caption, prefix, name, range, era)
+                    const element = this.builder.build(
+                        caption,
+                        prefix,
+                        name,
+                        range,
+                        era
                     );
+
+                    if (element) {
+                        data.push(element);
+                    }
                 }
             );
         }

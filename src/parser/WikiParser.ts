@@ -78,16 +78,28 @@ export class WikiTableStrictParser {
         }
     }
 
-    cloestPrevSiblingText($, node, selector, stop) {
+    /**
+     * return the text of first element matching the selector
+     *          while not meeting any element in stop in searching
+     * @param $
+     * @param node current node
+     * @param selector what to find
+     * @param stop what will stop the searching
+     */
+    cloestPrevSiblingText($, node, selector: string, stop) {
         let prev = $(node).prev();
         while (prev.length > 0) {
             const canStop = stop.reduce(
                 (accu, cur) => accu | $(prev[0]).is(cur),
                 false
             );
+
+            // meet an element in stop
             if (canStop) {
                 break;
             }
+
+            // meet the element matching selector
             if ($(prev[0]).is(selector)) {
                 return $(prev[0]).text();
             }
