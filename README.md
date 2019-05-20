@@ -18,6 +18,7 @@ new ChineseEraWikiProcessor(data => {
 ### Currently Supported Processor and Manager
 - ChineseEraWikiProcessor - Chinese Historical Era for Wikipedia ( https://zh.wikipedia.org/zh-cn/中国年号列表 )
 - ChineseEmperorWikiProcessor - Chinese Historical Emperor for Wikipedia ( https://zh.wikipedia.org/zh-cn/中国君主列表 )
+- GoogleSearchResultsProcessor - Get the Number of Google Search Results for each place name search
 - TimeManager - Chinese historical Era and Emerpror Timeline 
 
 
