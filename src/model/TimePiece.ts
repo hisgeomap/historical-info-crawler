@@ -1,4 +1,6 @@
 import assert = require("assert");
+import { Era } from "./Era";
+import { Leader } from "./Leader";
 
 export class TimePiece {
     regime: string;
@@ -20,7 +22,8 @@ export class TimePiece {
             this.era = era.name;
             this.start = era.start > leader.start ? era.start : leader.start;
             this.end = era.end < leader.end ? era.end : leader.end;
-            this.from = era.start > leader.start ? era.start - leader.start : 1;
+            this.from =
+                era.start < leader.start ? leader.start - era.start + 1 : 1;
         } else if (era) {
             this.regime = era.regime;
             this.leader = era.leader;
